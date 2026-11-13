@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import productController from "../controllers/product.controllers";
+import productController from "../controllers/product.controller";
 
 const routeHandler = (req: IncomingMessage, res: ServerResponse) => {
   const url = req.url;
