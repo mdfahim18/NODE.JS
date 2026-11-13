@@ -1,4 +1,4 @@
-import { readFileSync, writeFile, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { IProduct } from "../types";
 
