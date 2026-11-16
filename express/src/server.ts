@@ -82,6 +82,53 @@ app.post("/api/v1/users", async (req: Request, res: Response) => {
   }
 });
 
+app.get("/api/v1/users", async (req: Request, res: Response) => {
+  // get e o async keno
+  try {
+    const result = await pool.query(`
+      SELECT * FROM users
+      `);
+    // console.log(result);
+
+    res.status(200).json({
+      success: true,
+      message: "User retrived successfully!",
+      data: result.rows,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message,
+      error: error,
+    });
+  }
+});
+
+app.get("/api/v1/users/:id", async (req: Request, res: Response) => {
+  // ekane id te colun keno
+  try {
+    const { id } = req.params;
+    // console.log("single user", req);
+    const result = await pool.query(
+      `
+      SELECT * FROM users WHERE id=$1
+      `,
+      [id]
+    );
+    res.status(200).json({
+      success: true,
+      message: "User retrived successfully!",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message,
+      error: error,
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
