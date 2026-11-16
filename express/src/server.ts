@@ -6,6 +6,7 @@ import express, {
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "node:path";
+import config from "./config";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -16,12 +17,7 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true })); // eta erokom keno
 
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is missing from the environment");
-}
-
-const pool = new Pool({ connectionString: databaseUrl });
+const pool = new Pool({ connectionString: config.connection_string });
 
 // id SERIAL PRIMARY KEY, ei line bujini SERIAL, PRIMARY, KEY egula mane ki? egula ki data type?
 const initDB = async () => {
@@ -115,6 +111,12 @@ app.get("/api/v1/users/:id", async (req: Request, res: Response) => {
       `,
       [id]
     );
+    if (result.rowCount === 0) {
+      res.status(404).json({
+        success: true,
+        message: "User not found!",
+      });
+    }
     res.status(200).json({
       success: true,
       message: "User retrived successfully!",
@@ -146,6 +148,12 @@ app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
       `,
       [name ?? null, password ?? null, age ?? null, is_Active ?? null, id]
     );
+    if (result.rowCount === 0) {
+      res.status(404).json({
+        success: true,
+        message: "User not found!",
+      });
+    }
     res.status(200).json({
       success: true,
       message: "User updated successfully!",
@@ -159,29 +167,36 @@ app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
     });
   }
 });
-// app.delete("/api/v1/users/:id", async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await pool.query(
-//       `
-//   DELETE FROM users WHERE id=$1
-//   `,
-//       [id]
-//     );
-//     res.status(200).json({
-//       success: true,
-//       message: "User deleted successfully!",
-//       data: result.rows,
-//     });
-//   } catch (error: any) {
-//     res.status(500).json({
-//       success: false,
-//       message: error?.message,
-//       error: error,
-//     });
-//   }
-// });
 
-app.listen(port, () => {
+app.delete("/api/v1/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `
+  DELETE FROM users WHERE id=$1
+  `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(404).json({
+        success: true,
+        message: "User not found!",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully!",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message,
+      error: error,
+    });
+  }
+});
+
+app.listen(config.port, () => {
   console.log(`Server is running on port ${port}`);
 });
