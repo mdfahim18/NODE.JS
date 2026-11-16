@@ -129,6 +129,59 @@ app.get("/api/v1/users/:id", async (req: Request, res: Response) => {
   }
 });
 
+app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, password, age, is_Active } = req.body;
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET
+      name = COALESCE($1, name),
+      password = COALESCE($2, password),
+      age = COALESCE($3, age),
+      is_Active = COALESCE($4, is_Active ),
+      updated_at = NOW()
+      WHERE id=$5 RETURNING *
+      `,
+      [name ?? null, password ?? null, age ?? null, is_Active ?? null, id]
+    );
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully!",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message,
+      error: error,
+    });
+  }
+});
+// app.delete("/api/v1/users/:id", async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const result = await pool.query(
+//       `
+//   DELETE FROM users WHERE id=$1
+//   `,
+//       [id]
+//     );
+//     res.status(200).json({
+//       success: true,
+//       message: "User deleted successfully!",
+//       data: result.rows,
+//     });
+//   } catch (error: any) {
+//     res.status(500).json({
+//       success: false,
+//       message: error?.message,
+//       error: error,
+//     });
+//   }
+// });
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
