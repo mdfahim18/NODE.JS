@@ -7,4 +7,5 @@ const config = {
   port: Number(process.env.PORT),
 };
 
+console.log(config.port);
 export default config;
