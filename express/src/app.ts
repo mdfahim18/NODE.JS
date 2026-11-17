@@ -6,6 +6,7 @@ import express, {
 import dotenv from "dotenv";
 import path from "node:path";
 import { pool } from "./db";
+import { userRoute } from "./modules/users/user.route";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -25,32 +26,7 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.post("/api/v1/users", async (req: Request, res: Response) => {
-  // console.log(req.body); // middleware use na korle undefined asbe. middleware use korte "use" lekte hoy
-
-  try {
-    const { name, email, password, age } = req.body;
-
-    const result = await pool.query(
-      `
-    INSERT INTO users (name, email, password, age) VALUES($1, $2, $3, $4) RETURNING *
-    `,
-      [name, email, password, age]
-    );
-    // console.log(result);
-    res.status(201).json({
-      success: true,
-      message: "User created successfully!",
-      data: result.rows[0],
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message,
-      error: error,
-    });
-  }
-});
+app.use("/api/v1/users", userRoute);
 
 app.get("/api/v1/users", async (req: Request, res: Response) => {
   // get e o async keno
