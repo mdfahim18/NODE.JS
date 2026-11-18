@@ -1,16 +1,20 @@
+import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import type { IUser } from "./user.interface";
 
 const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, age } = payload;
 
+  const hashPassword = await bcrypt.hash(password, 10);
   const result = await pool.query(
     // pool.query() একটি Promise return করে।
     `
     INSERT INTO users (name, email, password, age) VALUES($1, $2, $3, $4) RETURNING *
     `,
-    [name, email, password, age]
+    [name, email, hashPassword, age]
   );
+
+  delete result.rows[0].password;
   // console.log(result);
   return result;
 };
@@ -67,5 +71,5 @@ export const userService = {
   getAllUsersFromDB,
   getSingleUserFromDB,
   updateUserFromDB,
-  deleteUserFromDB
+  deleteUserFromDB,
 };

@@ -35,7 +35,6 @@ export const initDB = async () => {
       )
   `);
 
-    // "bio" ki UPPERCASE dile ki hobe
     console.log("Database connected");
   } catch (error) {
     console.log(error);
