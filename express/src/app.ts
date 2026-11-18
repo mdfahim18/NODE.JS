@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import path from "node:path";
 import { pool } from "./db";
 import { userRoute } from "./modules/users/user.route";
+import { profileRoute } from "./modules/profile/profile.route";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -17,6 +18,7 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true })); // nested
 
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/profile", profileRoute);
 
 app.get("/", (req: Request, res: Response) => {
   // res.send("This is root route");
@@ -25,14 +27,6 @@ app.get("/", (req: Request, res: Response) => {
     message: "This is root route",
     author: "PH",
   });
-});
-
-
-
-
-
-app.delete("/api/v1/users/:id", async (req: Request, res: Response) => {
- 
 });
 
 export default app;
