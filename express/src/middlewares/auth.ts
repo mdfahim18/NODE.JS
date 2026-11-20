@@ -36,6 +36,9 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
   // console.log(user.rows[0]);
+
+  req.user = decoded;
+
   next();
 };
 
