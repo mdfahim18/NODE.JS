@@ -4,42 +4,48 @@ import jtw from "jsonwebtoken";
 import config from "../config";
 import { pool } from "../db";
 
-const auth = async (req: Request, res: Response, next: NextFunction) => {
-  // console.log(req.headers);
-  const token = req.headers.authorization;
-  if (!token) {
-    res.status(401).json({
-      success: false,
-      message: "Unauthorized access",
-    });
-  }
+const auth = (...roles: any) => {
+  console.log(roles);
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // console.log(req.headers);
+    const token = req.headers.authorization;
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
 
-  const decoded = jwt.verify(token as string, config.jwt_secret) as JwtPayload;
+    const decoded = jwt.verify(
+      token as string,
+      config.jwt_secret
+    ) as JwtPayload;
 
-  const user = await pool.query(
-    `
+    const user = await pool.query(
+      `
     SELECT * FROM users WHERE email=$1
     `,
-    [decoded.email]
-  );
+      [decoded.email]
+    );
 
-  if (user.rowCount === 0) {
-    res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
-  }
-  if (!user.rows[0].is_active) {
-    res.status(403).json({
-      success: false,
-      message: "User Forbidden",
-    });
-  }
-  // console.log(user.rows[0]);
+    if (user.rowCount === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    if (!user.rows[0].is_active) {
+      res.status(403).json({
+        success: false,
+        message: "User Forbidden",
+      });
+    }
+    // console.log(user.rows[0]);
 
-  req.user = decoded;
+    req.user = decoded;
 
-  next();
+    next();
+  };
 };
 
 export default auth;
