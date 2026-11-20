@@ -1,4 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+import jtw from "jsonwebtoken";
+import config from "../config";
+import { pool } from "../db";
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   // console.log(req.headers);
@@ -9,6 +13,29 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       message: "Unauthorized access",
     });
   }
+
+  const decoded = jwt.verify(token as string, config.jwt_secret) as JwtPayload;
+
+  const user = await pool.query(
+    `
+    SELECT * FROM users WHERE email=$1
+    `,
+    [decoded.email]
+  );
+
+  if (user.rowCount === 0) {
+    res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  if (!user.rows[0].is_active) {
+    res.status(403).json({
+      success: false,
+      message: "User Forbidden",
+    });
+  }
+  // console.log(user.rows[0]);
   next();
 };
 
