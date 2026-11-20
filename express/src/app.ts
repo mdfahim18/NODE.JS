@@ -12,8 +12,6 @@ import logger from "./middlewares/logger";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
 import cors from "cors";
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
-
 const app: Application = express();
 
 const corsOptions = {
