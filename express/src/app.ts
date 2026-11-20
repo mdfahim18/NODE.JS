@@ -9,6 +9,7 @@ import { userRoute } from "./modules/users/user.route";
 import { profileRoute } from "./modules/profile/profile.route";
 import { authRoute } from "./modules/auth/auth.route";
 import fs from "fs";
+import logger from "./middlewares/logger";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -18,14 +19,7 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true })); // nested
 
-app.use((req, res, next) => {
-  const log = `\n Method : ${req.method} | URL : ${req.url} | Time: ${Date.now()} \n`;
-
-  fs.appendFile("logger.txt", log, (err) => {
-    console.log(err);
-  });
-  next();
-});
+app.use(logger);
 
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/profile", profileRoute);
