@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
+import jwt from "jsonwebtoken";
+import config from "../../config";
 
 const loginUserIntoDB = async (playload: {
   email: string;
@@ -28,6 +30,17 @@ const loginUserIntoDB = async (playload: {
   if (!user.rows[0].is_active) {
     throw new Error("Access denied");
   }
+
+  const jwtPayload = {
+    id: user.rows[0].id,
+    email: user.rows[0].email,
+  };
+
+  const accessToken = jwt.sign(jwtPayload, config.jwt_secret, {
+    expiresIn: "1d",
+  });
+  delete user.rows[0].password;
+  return { accessToken, data: user.rows[0] };
 };
 
 export const authService = { loginUserIntoDB };
