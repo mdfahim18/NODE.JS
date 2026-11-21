@@ -3,14 +3,14 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import dotenv from "dotenv";
-import path from "node:path";
+
 import { userRoute } from "./modules/users/user.route";
 import { profileRoute } from "./modules/profile/profile.route";
 import { authRoute } from "./modules/auth/auth.route";
 import logger from "./middlewares/logger";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 
@@ -19,6 +19,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.text());
